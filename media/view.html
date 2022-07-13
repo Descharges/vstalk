@@ -1,0 +1,219 @@
+<html>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+    body {
+        font-family: 'Press Start 2P', sans-serif;
+        font-size: x-small;
+        line-height: 1.5em;
+    }
+
+    .flex-container {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        align-content: stretch;
+        align-items: stretch;
+        height: 100vh;
+    }
+
+    .flex-item:nth-child(1) {
+        order: 0;
+        flex: 0 0 auto;
+        align-self: auto;
+    }
+
+    .flex-item:nth-child(2) {
+        order: 0;
+        flex: 1 1 auto;
+        align-self: auto;
+        height: 100px;
+
+    }
+
+    .flex-item:nth-child(3) {
+        order: 0;
+        flex: 0 0 auto;
+        align-self: auto;
+    }
+
+
+
+
+    h1 {
+        color: white;
+        line-height: 1.7em;
+    }
+
+    .warn {
+        color: #D0342C;
+    }
+
+    .message {
+        font-size: small;
+        padding: 10px;
+    }
+
+    .txtfield {
+        font-family: 'Press Start 2P', sans-serif;
+        color: white;
+        width: calc(100vw - 220px);
+        padding: 20px;
+        border-width: 0px;
+        background-color: rgba(255, 255, 255, 0.15);
+        border-style: solid;
+        border-radius: 0px;
+        box-shadow: 0px;
+        text-shadow: 0px;
+        outline: none;
+    }
+
+    .button {
+        cursor: pointer;
+        font-family: 'Press Start 2P', sans-serif;
+        color: white;
+        width: 120px;
+        padding: 20px;
+        border-width: 0px;
+        background-color: #0066B8;
+        border-style: solid;
+        border-radius: 0px;
+        box-shadow: 0px;
+        text-shadow: 0px;
+        outline: none;
+    }
+
+    .button:hover {
+        background-color: #005599;
+    }
+
+    textarea:focus,
+    input:focus {
+        outline: none;
+    }
+
+    .board {
+        overflow-y: scroll;
+    }
+
+    .username {
+        color: white;
+        padding: 5px;
+        width: fit-content;
+        margin: 0px;
+    }
+
+    .local{
+        background-color: #0066B8;
+    }
+
+    .remote{
+        background-color: #D0342C;
+    }
+
+    .spacer{
+        height: 10px;
+    }
+
+    .content {
+        color: white;
+        padding: 5px;
+        background-color: rgba(255, 255, 255, 0.15);
+        width: 95%;
+        margin: 0px;
+    }
+</style>
+
+<body>
+
+    <div class="flex-container">
+        <div class="header flex-item">
+            <h1>You're now talking with [REMOTE_USERNAME] !</h1>
+            <h3>Start the conversation with your best programming joke !
+                <h3 />
+                <p class="warn"> Keep in mind that this extension was developped as a quick side project, and is thus
+                    not monitored and highly insecure. Please keep the conversation clean and do not reveal
+                    any personal informations, such as passwords.</p>
+        </div>
+
+        <div class="board flex-item" id="board">
+        </div>
+
+        <div class="message flex-item">
+
+            <form action="#" onsubmit="sendMessage(); return false;">
+                <input class="txtfield" type="text" id="txtfield"><input class="button" type="button" value="Send"
+                    onclick="sendMessage()">
+            </form>
+        </div>
+
+    </div>
+
+</body>
+<script>
+
+    const vscode = acquireVsCodeApi();
+
+    const remoteUsername = "[REMOTE_USERNAME]";
+    const username = "[USERNAME]";
+
+    var input = document.getElementById("txtfield");
+    var board = document.getElementById("board");
+
+    var lastTxtMine = undefined;
+
+    function removeTags(str) {
+        if ((str === null) || (str === ''))
+            return false;
+        else
+            str = str.toString();
+
+        // Regular expression to identify HTML tags in 
+        // the input string. Replacing the identified 
+        // HTML tag with a null string.
+        return str.replace(/(<([^>]+)>)/ig, '');
+    }
+
+    function receiveMessage(content) {
+
+        content = removeTags(content);
+
+        if (lastTxtMine!== undefined && !lastTxtMine) {
+            board.innerHTML += `<p class="content">${content}</p>`
+        } else {
+            board.innerHTML += `<div class="spacer"></div> <p class="username remote">${remoteUsername}</p> <p class="content">${content}</p>`
+            lastTxtMine = false;
+        }
+
+        board.scrollTop = board.scrollHeight;
+
+    }
+
+    function sendMessage() {
+
+        const message = removeTags(input.value);
+
+        if (message != "") {
+
+            if (lastTxtMine) {
+                board.innerHTML += `<p class="content">${message}</p>`
+            } else {
+                board.innerHTML += `<div class="spacer"></div> <p class="username local">${username} (you)</p> <p class="content">${message}</p>`
+                lastTxtMine = true;
+            }
+            vscode.postMessage(message);
+
+            input.value = "";
+        }
+        board.scrollTop = board.scrollHeight;
+    }
+
+    window.addEventListener('message', event => {
+        receiveMessage(event.data)
+    })
+
+
+</script>
+
+</html>
