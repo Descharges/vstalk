@@ -48,7 +48,7 @@ export function activate(context: vscode.ExtensionContext) {
 		panel.webview.onDidReceiveMessage((m)=>{
 
 			//When the user sends a message
-			//panel.webview.postMessage("Message recu !");
+			panel.webview.postMessage("Message recu !");
 		});
 
 		panel.onDidDispose(() => {

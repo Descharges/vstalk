@@ -25,7 +25,7 @@ function activate(context) {
         const panel = vscode.window.createWebviewPanel("chat", "VSTalk", vscode.ViewColumn.One, { enableScripts: true, retainContextWhenHidden: true });
         panel.webview.onDidReceiveMessage((m) => {
             //When the user sends a message
-            //panel.webview.postMessage("Message recu !");
+            panel.webview.postMessage("Message recu !");
         });
         panel.onDidDispose(() => {
             searchStatus.hide();
